@@ -1,9 +1,7 @@
-name: Ruby Gem
+name: Ruby Gem Publish
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
     branches: [ "main" ]
 
 jobs:
