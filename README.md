@@ -28,6 +28,12 @@ You can get a logger by calling the following once Herodotus is installed:
 logger = DVLA::Herodotus.logger
 ```
 
+You can also provide the path to an output file, which will be logged to simultaneously with standard console logger
+
+```ruby
+logger = DVLA::Herodotus.logger(output_path: 'logs.txt')
+```
+
 This is a standard Ruby logger, so anything that would work on a logger acquired the traditional way will also work here, however it is formatted such that all logs will be output in the following format:
 
 `[CurrentDate CurrentTime CorrelationId] Level : -- Message`
