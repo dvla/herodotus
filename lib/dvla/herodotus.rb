@@ -27,9 +27,7 @@ module DVLA
       logger
     end
 
-    private
-
-    def self.create_logger(output_path)
+    private_class_method def self.create_logger(output_path)
       if output_path
         output_file = File.open(output_path, 'a+')
         HerodotusLogger.new(MultiWriter.new(output_file, $stdout))
@@ -37,6 +35,5 @@ module DVLA
         HerodotusLogger.new($stdout)
       end
     end
-
   end
 end

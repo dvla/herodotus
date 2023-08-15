@@ -5,8 +5,8 @@ RSpec.describe DVLA::Herodotus::MultiWriter do
     writer_one = instance_double(File)
     writer_two = instance_double(File)
 
-    argument_one = "argument one"
-    argument_two = "argument two"
+    argument_one = 'argument one'
+    argument_two = 'argument two'
 
     expect(writer_one).to receive(:write).with(argument_one, argument_two)
     expect(writer_two).to receive(:write).with(argument_one, argument_two)
