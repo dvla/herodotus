@@ -25,4 +25,11 @@ RSpec.describe DVLA::Herodotus::MultiWriter do
     multi_writer = DVLA::Herodotus::MultiWriter.new(writer_one, writer_two)
     multi_writer.close
   end
+
+  it 'does not close the standard output when close is called' do
+    multi_writer = DVLA::Herodotus::MultiWriter.new($stdout)
+    multi_writer.close
+
+    expect($stdout.closed?).to be false
+  end
 end

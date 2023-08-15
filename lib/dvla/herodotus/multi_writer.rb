@@ -10,7 +10,9 @@ module DVLA
       end
 
       def close
-        @targets.each(&:close)
+        @targets.each do |t|
+          t.close unless t.eql? $stdout
+        end
       end
     end
   end
