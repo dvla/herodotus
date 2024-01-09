@@ -75,6 +75,31 @@ RSpec.describe DVLA::Herodotus::HerodotusLogger do
       expect { logger.send(testcase[:method]) { 'Test Log' } }.to output("[2022-01-01 00:00:00 123e4567] #{testcase[:string_value]} -- : Test Log\n")
                                                                  .to_stdout_from_any_process
     end
+
+    it 'updates all ProcWriters within a MultiWriter with the current scenario' do
+      expected_scenario_name = 'Expected Scenario'
+
+      proc_writer_double = instance_double(DVLA::Herodotus::ProcWriter)
+      targets_double = instance_double(Array)
+      expect(proc_writer_double).to receive(:scenario=).with(expected_scenario_name)
+      allow(proc_writer_double).to receive(:instance_of?).with(DVLA::Herodotus::ProcWriter).and_return(true)
+      allow(targets_double).to receive(:any?).with(DVLA::Herodotus::ProcWriter).and_return(true)
+      allow(targets_double).to receive(:select).and_return([proc_writer_double])
+
+      multi_writer_double = instance_double(DVLA::Herodotus::MultiWriter)
+      allow(multi_writer_double).to receive(:write)
+      allow(multi_writer_double).to receive(:targets).and_return(targets_double)
+      allow(multi_writer_double).to receive(:respond_to?).with(:write).and_return(true)
+      allow(multi_writer_double).to receive(:respond_to?).with(:close).and_return(true)
+      allow(multi_writer_double).to receive(:respond_to?).with(:path).and_return(false)
+      allow(multi_writer_double).to receive(:is_a?).with(DVLA::Herodotus::MultiWriter).and_return(true)
+
+      logger = DVLA::Herodotus::HerodotusLogger.new(multi_writer_double)
+      logger.register_default_correlation_id
+      logger.new_scenario(expected_scenario_name)
+
+      logger.send(testcase[:method],'Test log')
+    end
   end
 
   it 'starts a new scenario with the non-default correlation id every time new_scenario is called' do

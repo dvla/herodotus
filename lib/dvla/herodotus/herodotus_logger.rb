@@ -7,6 +7,7 @@ module DVLA
 
       def register_default_correlation_id
         @correlation_ids = { default: SecureRandom.uuid[0, 8] }
+        @current_scenario = :default
         reset_format
       end
 
@@ -28,9 +29,11 @@ module DVLA
       %i[debug info warn error fatal].each do |log_level|
         define_method log_level do |progname = nil, scenario_id = nil, &block|
           if scenario_id == nil
+            set_proc_writer_scenario
             super(progname, &block)
           else
             update_format(scenario_id)
+            set_proc_writer_scenario
             super(progname, &block)
             reset_format
           end
@@ -40,6 +43,7 @@ module DVLA
     private
 
       def update_format(scenario_id)
+        @current_scenario = scenario_id
         @correlation_ids[scenario_id] = SecureRandom.uuid[0, 8] unless @correlation_ids.key?(scenario_id)
 
         self.formatter = proc do |severity, _datetime, _progname, msg|
@@ -58,6 +62,15 @@ module DVLA
             "#{@correlation_ids[:default]}" \
             "#{' '.concat(Process.pid.to_s) if requires_pid}] " \
             "#{severity} -- : #{msg}\n"
+        end
+      end
+
+      def set_proc_writer_scenario
+        if @logdev.dev.is_a? DVLA::Herodotus::MultiWriter and @logdev.dev.targets.any? DVLA::Herodotus::ProcWriter
+          proc_writers = @logdev.dev.targets.select { |t| t.is_a? DVLA::Herodotus::ProcWriter }
+          proc_writers.each do |pr|
+            pr.scenario = @current_scenario
+          end
         end
       end
     end
