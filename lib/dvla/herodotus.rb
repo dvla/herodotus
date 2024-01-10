@@ -1,6 +1,7 @@
 require 'logger'
 require_relative 'herodotus/herodotus_logger'
 require_relative 'herodotus/multi_writer'
+require_relative 'herodotus/proc_writer'
 require_relative 'herodotus/string'
 
 module DVLA
@@ -29,11 +30,17 @@ module DVLA
 
     private_class_method def self.create_logger(output_path)
       if output_path
-        output_file = File.open(output_path, 'a+')
-        HerodotusLogger.new(MultiWriter.new(output_file, $stdout))
-      else
-        HerodotusLogger.new($stdout)
+        if output_path.is_a? String
+          output_file = File.open(output_path, 'a')
+          return HerodotusLogger.new(MultiWriter.new(output_file, $stdout))
+        elsif output_path.is_a? Proc
+          proc_writer = ProcWriter.new(output_path)
+          return HerodotusLogger.new(MultiWriter.new(proc_writer, $stdout))
+        else
+          raise ArgumentError.new "Unexpected output_path provided. Expecting either a string or a proc"
+        end
       end
+      HerodotusLogger.new($stdout)
     end
   end
 end

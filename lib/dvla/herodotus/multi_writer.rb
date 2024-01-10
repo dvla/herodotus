@@ -1,6 +1,8 @@
 module DVLA
   module Herodotus
     class MultiWriter
+      attr_reader :targets
+
       def initialize(*targets)
         @targets = *targets
       end

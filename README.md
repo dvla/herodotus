@@ -28,10 +28,16 @@ You can get a logger by calling the following once Herodotus is installed:
 logger = DVLA::Herodotus.logger
 ```
 
-You can also provide the path to an output file, which will be logged to simultaneously with standard console logger
+You can also log out to a file. If you want all the logs in a single file, provide a string of the path to that output file and it will be logged to simultaneously with standard console logger
 
 ```ruby
 logger = DVLA::Herodotus.logger(output_path: 'logs.txt')
+```
+
+Alternatively, if you want each scenario to log out to a separate file based on the scenario name, pass in a lambda that returns a string that attempts to interpolate `@scenario`.
+
+```ruby
+logger = DVLA::Herodotus.logger(output_path: -> { "#{@scenario}_log.txt" })
 ```
 
 This is a standard Ruby logger, so anything that would work on a logger acquired the traditional way will also work here, however it is formatted such that all logs will be output in the following format:
