@@ -66,7 +66,7 @@ module DVLA
       end
 
       def set_proc_writer_scenario
-        if @logdev.dev.is_a? DVLA::Herodotus::MultiWriter and @logdev.dev.targets.any? DVLA::Herodotus::ProcWriter
+        if @logdev.dev.is_a?(DVLA::Herodotus::MultiWriter) && @logdev.dev.targets.any?(DVLA::Herodotus::ProcWriter)
           proc_writers = @logdev.dev.targets.select { |t| t.is_a? DVLA::Herodotus::ProcWriter }
           proc_writers.each do |pr|
             pr.scenario = @current_scenario
