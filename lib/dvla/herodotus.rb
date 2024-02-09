@@ -37,7 +37,7 @@ module DVLA
           proc_writer = ProcWriter.new(output_path)
           return HerodotusLogger.new(MultiWriter.new(proc_writer, $stdout))
         else
-          raise ArgumentError.new "Unexpected output_path provided. Expecting either a string or a proc"
+          raise ArgumentError.new 'Unexpected output_path provided. Expecting either a string or a proc'
         end
       end
       HerodotusLogger.new($stdout)

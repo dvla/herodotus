@@ -98,7 +98,7 @@ RSpec.describe DVLA::Herodotus::HerodotusLogger do
       logger.register_default_correlation_id
       logger.new_scenario(expected_scenario_name)
 
-      logger.send(testcase[:method],'Test log')
+      logger.send(testcase[:method], 'Test log')
     end
   end
 

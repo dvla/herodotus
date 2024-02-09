@@ -1,0 +1,39 @@
+name: Ruby Build
+
+on:
+  schedule:
+    - cron: '0 7 * * 1'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ruby-version: [ '3.0', '3.1', '3.2' ]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: ${{ matrix.ruby-version }}
+          bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+      
+      - name: Run checks
+        run: |
+          gem install bundler-audit
+          bundle-audit check --update
+          bundle exec rspec
+      
+      - name: Report test failure
+        if: ${{ failure() }}
+        run:  |
+          COMMIT_MESSAGE=$(git log -1 --pretty=%B)
+          COMMIT_AUTHOR=$(git log -1 --pretty=format:'%an')
+          curl -H 'Content-Type: application/json' -d "{\"title\": \"${REPO_NAME} GitHub build failed.\",\"text\": \"Build **${BUILD_NUMBER}** on the main branch by ${COMMIT_AUTHOR}  [GitHub Action](${ACTION_LINK}) | [Repo Branch](${BRANCH_LINK})  **Commit Message** ${COMMIT_MESSAGE}\",\"themeColor\": \"EA4300\"}" -s ${WEBHOOK_URL}
+        env:
+          REPO_NAME: "${{ github.event.repository.name }}"
+          BUILD_NUMBER: "${{ github.run_number }}"
+          ACTION_LINK: "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          BRANCH_LINK: "${{ github.server_url }}/${{ github.repository }}"
+          WEBHOOK_URL: "${{ secrets.WEBHOOK_URL }}"
