@@ -25,7 +25,7 @@ Or install it yourself as:
 You can get a logger by calling the following once Herodotus is installed:
 
 ```ruby
-logger = DVLA::Herodotus.logger
+logger = DVLA::Herodotus.logger('<system-name>')
 ```
 
 You can also log out to a file. If you want all the logs in a single file, provide a string of the path to that output file and it will be logged to simultaneously with standard console logger
@@ -57,11 +57,6 @@ This would result in logs in the following format:
 
 `[SystemName CurrentDate CurrentTime CorrelationId PID] Level : -- Message`
 
-Additionally, if you wish to have different correlation ids based on the scenario that is being currently being run, you can pass a unique identifier for your scenario as part of the logging call, with each scenario having a unique correlation id.
-
-```ruby
-logger.info('String to log out', 'Scenario Id')
-```
 
 Alternatively, you can call `new_scenario` with the identifier just before each scenario to achieve the same result without having to pass the identifier around.
 
