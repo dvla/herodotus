@@ -40,50 +40,50 @@ module DVLA
           DVLA::Herodotus.main_logger.correlation_id = @correlation_id
           DVLA::Herodotus.main_logger.scenario_id = @scenario_id
         end
+
+        set_formatter
+        sync_correlation_ids if DVLA::Herodotus.main_logger
       end
 
-      set_formatter
-      sync_correlation_ids if DVLA::Herodotus.main_logger
-    end
-
-    # Finds all instances of HerodotusLogger and updates their correlation_id and scenario_id
-    # to match that of the main HerodotusLogger.
-    def sync_correlation_ids
-      ObjectSpace.each_object(DVLA::Herodotus::HerodotusLogger) do |logger|
-        unless logger == DVLA::Herodotus.main_logger
-          logger.correlation_id = DVLA::Herodotus.main_logger.correlation_id
-          logger.scenario_id = DVLA::Herodotus.main_logger.scenario_id
-          logger.set_formatter
+      # Finds all instances of HerodotusLogger and updates their correlation_id and scenario_id
+      # to match that of the main HerodotusLogger.
+      def sync_correlation_ids
+        ObjectSpace.each_object(DVLA::Herodotus::HerodotusLogger) do |logger|
+          unless logger == DVLA::Herodotus.main_logger
+            logger.correlation_id = DVLA::Herodotus.main_logger.correlation_id
+            logger.scenario_id = DVLA::Herodotus.main_logger.scenario_id
+            logger.set_formatter
+          end
         end
       end
-    end
 
-    %i[debug info warn error fatal].each do |log_level|
-      define_method log_level do |progname = nil, &block|
-        set_proc_writer_scenario
-        super(progname, &block)
+      %i[debug info warn error fatal].each do |log_level|
+        define_method log_level do |progname = nil, &block|
+          set_proc_writer_scenario
+          super(progname, &block)
+        end
       end
-    end
 
-    # Sets the format of the log.
-    # Needs to be called each time correlation_id is changed after initialization in-order for the changes to take affect.
-    def set_formatter
-      self.formatter = proc do |severity, _datetime, _progname, msg|
-        "[#{@system_name} " \
-          "#{Time.now.strftime('%Y-%m-%d %H:%M:%S')} " \
-          "#{@correlation_id}" \
-          "#{' '.concat(Process.pid.to_s) if @display_pid}] " \
-          "#{severity} -- : #{msg}\n"
+      # Sets the format of the log.
+      # Needs to be called each time correlation_id is changed after initialization in-order for the changes to take affect.
+      def set_formatter
+        self.formatter = proc do |severity, _datetime, _progname, msg|
+          "[#{@system_name} " \
+            "#{Time.now.strftime('%Y-%m-%d %H:%M:%S')} " \
+            "#{@correlation_id}" \
+            "#{' '.concat(Process.pid.to_s) if @display_pid}] " \
+            "#{severity} -- : #{msg}\n"
+        end
       end
-    end
 
-  private
+    private
 
-    def set_proc_writer_scenario
-      if @logdev.dev.is_a?(DVLA::Herodotus::MultiWriter) && @logdev.dev.targets.any?(DVLA::Herodotus::ProcWriter)
-        proc_writers = @logdev.dev.targets.select { |t| t.is_a? DVLA::Herodotus::ProcWriter }
-        proc_writers.each do |pr|
-          pr.scenario = @scenario_id
+      def set_proc_writer_scenario
+        if @logdev.dev.is_a?(DVLA::Herodotus::MultiWriter) && @logdev.dev.targets.any?(DVLA::Herodotus::ProcWriter)
+          proc_writers = @logdev.dev.targets.select { |t| t.is_a? DVLA::Herodotus::ProcWriter }
+          proc_writers.each do |pr|
+            pr.scenario = @scenario_id
+          end
         end
       end
     end

@@ -1,14 +1,6 @@
 require 'dvla/herodotus'
 
 RSpec.describe DVLA::Herodotus do
-  # before(:each) do
-  #   DVLA::Herodotus.configure do |config|
-  #     config.system_name = nil
-  #     config.pid = nil
-  #     config.merge = nil
-  #   end
-  # end
-
   after(:each) do
     DVLA::Herodotus.main_logger = nil
   end

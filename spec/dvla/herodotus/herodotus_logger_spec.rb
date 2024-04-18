@@ -99,7 +99,7 @@ RSpec.describe DVLA::Herodotus::HerodotusLogger do
     other_logger2 = DVLA::Herodotus.logger('main-main-rspec', config: DVLA::Herodotus.config { |c| c.main = true })
     expect(DVLA::Herodotus.main_logger).to eq(other_logger2)
 
-    expect(logger.correlation_id).to eq(other_logger_2.correlation_id)
+    expect(logger.correlation_id).to eq(other_logger2.correlation_id)
     expect(other_logger1.correlation_id).to eq(other_logger2.correlation_id)
   end
 
