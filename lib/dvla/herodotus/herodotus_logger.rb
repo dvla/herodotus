@@ -8,7 +8,7 @@ module DVLA
       # Initializes the logger
       # Sets a default correlation_id and creates the formatter
       # Syncs all instances of the HerodotusLogger when the main flag is present
-      # Any subsequent loggers will also be synce
+      # Any subsequent loggers will also be synced
       def initialize(system_name, *args, config: DVLA::Herodotus.config, **kwargs)
         super(*args, **kwargs)
 
