@@ -18,6 +18,7 @@ Or install it yourself as:
 
     $ gem install dvla-herodotus
 
+---
 ## Usage
 
 ### Logger
@@ -25,59 +26,59 @@ Or install it yourself as:
 You can get a logger by calling the following once Herodotus is installed:
 
 ```ruby
-logger = DVLA::Herodotus.logger
+logger = DVLA::Herodotus.logger('<system-name>')
 ```
 
 You can also log out to a file. If you want all the logs in a single file, provide a string of the path to that output file and it will be logged to simultaneously with standard console logger
 
 ```ruby
-logger = DVLA::Herodotus.logger(output_path: 'logs.txt')
+logger = DVLA::Herodotus.logger('<system-name>', output_path: 'logs.txt')
 ```
 
 Alternatively, if you want each scenario to log out to a separate file based on the scenario name, pass in a lambda that returns a string that attempts to interpolate `@scenario`.
 
 ```ruby
-logger = DVLA::Herodotus.logger(output_path: -> { "#{@scenario}_log.txt" })
+logger = DVLA::Herodotus.logger('<system-name>', output_path: -> { "#{@scenario}_log.txt" })
 ```
 
 This is a standard Ruby logger, so anything that would work on a logger acquired the traditional way will also work here, however it is formatted such that all logs will be output in the following format:
 
-`[CurrentDate CurrentTime CorrelationId] Level : -- Message`
 
-Additionally, you can configure Herodotus in the following way to add a System Name and the Process Id to the output:
+`[SystemName CurrentDate CurrentTime CorrelationId] Level : -- Message`
+
+### Configuration
+You can configure Herodotus in the following way to add a Process Id to the output:
 
 ```ruby
-DVLA::Herodotus.configure do |config|
-  config.system_name = 'SystemName'
-  config.pid = true
+config = DVLA::Herodotus.config do |config|
+  config.display_pid = true
 end
+logger = DVLA::Herodotus.logger('<system-name>', config: config)
 ```
 
 This would result in logs in the following format:
 
 `[SystemName CurrentDate CurrentTime CorrelationId PID] Level : -- Message`
 
-Additionally, if you wish to have different correlation ids based on the scenario that is being currently being run, you can pass a unique identifier for your scenario as part of the logging call, with each scenario having a unique correlation id.
+### Syncing logs
+
+Herodotus allows you to Sync correlation_ids between instantiated HerodotusLogger objects. 
+
+The HerodotusLogger flagged as `main` will be used as the source.
 
 ```ruby
-logger.info('String to log out', 'Scenario Id')
+config = DVLA::Herodotus.config do |config|
+  config.main = true
+end
+main_logger = DVLA::Herodotus.logger('<system-name>', config: config)
 ```
 
-Alternatively, you can call `new_scenario` with the identifier just before each scenario to achieve the same result without having to pass the identifier around.
+### new_scenario method
+You can call `new_scenario` with the identifier just before each scenario to create a unique correlation_id per scenario.
 
 ```ruby
 logger.new_scenario('Scenario Id')
 ```
-
-Finally, you can set Herodotus up to integrate with any other instances of Herodotus that are loaded indirectly into your application, for example within a gem you use. To take advantage of this, when configuring Herodotus within your project, ensure that you set its `merge` value to true, as below:
-
-```ruby
-DVLA::Herodotus.configure do |config|
-  config.merge = true
-end
-```
-
-This will cause your correlation ids to be shared out with all the loggers that exist outside of our direct control. The instance of the Herodotus that will take precedence will be the last one to be loaded, which should be the one you are creating with `DVLA::Herodotus.logger`. 
 
 ### Strings
 

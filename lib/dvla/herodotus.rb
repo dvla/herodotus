@@ -6,41 +6,35 @@ require_relative 'herodotus/string'
 
 module DVLA
   module Herodotus
-    CONFIG_ATTRIBUTES = %i(system_name pid merge).freeze
-
-    def self.configure
-      @config ||= Struct.new(*CONFIG_ATTRIBUTES).new
-      yield(@config) if block_given?
-      @config
+    class << self
+      attr_accessor :main_logger
     end
+
+    CONFIG_ATTRIBUTES = %i[display_pid main].freeze
 
     def self.config
-      @config || configure
+      config ||= Struct.new(*CONFIG_ATTRIBUTES, keyword_init: true).new
+      yield(config) if block_given?
+      config
     end
 
-    def self.logger(output_path: nil)
-      logger = create_logger(output_path)
-      logger.system_name = "#{config.system_name} " unless config.system_name.nil?
-      logger.requires_pid = config.pid
-      logger.merge = config.merge
-      logger.register_default_correlation_id
-      logger.merge_correlation_ids if config.merge
-      logger
+    def self.logger(system_name, config: self.config, output_path: nil)
+      create_logger(system_name, config, output_path)
     end
 
-    private_class_method def self.create_logger(output_path)
+    private_class_method def self.create_logger(system_name, config, output_path)
       if output_path
         if output_path.is_a? String
           output_file = File.open(output_path, 'a')
-          return HerodotusLogger.new(MultiWriter.new(output_file, $stdout))
+          return HerodotusLogger.new(system_name, MultiWriter.new(output_file, $stdout), config: config)
         elsif output_path.is_a? Proc
           proc_writer = ProcWriter.new(output_path)
-          return HerodotusLogger.new(MultiWriter.new(proc_writer, $stdout))
+          return HerodotusLogger.new(system_name, MultiWriter.new(proc_writer, $stdout), config: config)
         else
           raise ArgumentError.new 'Unexpected output_path provided. Expecting either a string or a proc'
         end
       end
-      HerodotusLogger.new($stdout)
+      HerodotusLogger.new(system_name, $stdout, config: config)
     end
   end
 end
