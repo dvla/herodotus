@@ -15,6 +15,24 @@ class String
 
   def gray = "\e[37m#{self}\e[0m"
 
+  alias grey gray
+
+  def bright_black = "\e[90m#{self}\e[0m"
+
+  def bright_red = "\e[91m#{self}\e[0m"
+
+  def bright_green = "\e[92m#{self}\e[0m"
+
+  def bright_yellow = "\e[93m#{self}\e[0m"
+
+  def bright_blue = "\e[94m#{self}\e[0m"
+
+  def bright_magenta = "\e[95m#{self}\e[0m"
+
+  def bright_cyan = "\e[96m#{self}\e[0m"
+
+  def white = "\e[97m#{self}\e[0m"
+
   def bg_black = "\e[40m#{self}\e[0m"
 
   def bg_red = "\e[41m#{self}\e[0m"
