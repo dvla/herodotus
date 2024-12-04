@@ -88,29 +88,38 @@ Also included is a series of additional methods on `String` that allow you to mo
 example_string = 'Multicoloured String'.blue.bg_red.bold
 ```
 
-| Method        | Function                                       |
-|---------------|------------------------------------------------|
-| blue          | Sets the string's colour to blue               |
-| red           | Sets the string's colour to red                |
-| green         | Sets the string's colour to green              |
-| brown         | Sets the string's colour to brown              |
-| blue          | Sets the string's colour to blue               |
-| magenta       | Sets the string's colour to magenta            |
-| cyan          | Sets the string's colour to cyan               |
-| gray          | Sets the string's colour to gray               |
-| bg_blue       | Sets the string's background colour to blue    |
-| bg_red        | Sets the string's background colour to red     |
-| bg_green      | Sets the string's background colour to green   |
-| bg_brown      | Sets the string's background colour to brown   |
-| bg_blue       | Sets the string's background colour to blue    |
-| bg_magenta    | Sets the string's background colour to magenta |
-| bg_cyan       | Sets the string's background colour to cyan    |
-| bg_gray       | Sets the string's background colour to gray    |
-| bold          | Sets the string to be bold                     |
-| italic        | Sets the string to be italic                   |
-| underline     | Sets the string to be underline                |
-| blink         | Sets the string to blink                       |
-| reverse_color | Reverses the colour of the string              |
+| Method        | Function                                         |
+|---------------|--------------------------------------------------|
+| blue          | Sets the string's colour to blue                 |
+| red           | Sets the string's colour to red                  |
+| green         | Sets the string's colour to green                |
+| brown         | Sets the string's colour to brown                |
+| blue          | Sets the string's colour to blue                 |
+| magenta       | Sets the string's colour to magenta              |
+| cyan          | Sets the string's colour to cyan                 |
+| gray          | Sets the string's colour to gray                 |
+| grey          | Sets the string's colour to grey (alias of gray) |
+| bright_blue   | Sets the string's colour to bright blue          |
+| bright_red    | Sets the string's colour to bright red           |
+| bright_green  | Sets the string's colour to bright green         |
+| bright_yellow | Sets the string's colour to bright yellow        |
+| bright_blue   | Sets the string's colour to bright blue          |
+| bright_magenta| Sets the string's colour to bright magenta       |
+| bright_cyan   | Sets the string's colour to bright cyan          |
+| white         | Sets the string's colour to white                |
+| bg_blue       | Sets the string's background colour to blue      |
+| bg_red        | Sets the string's background colour to red       |
+| bg_green      | Sets the string's background colour to green     |
+| bg_brown      | Sets the string's background colour to brown     |
+| bg_blue       | Sets the string's background colour to blue      |
+| bg_magenta    | Sets the string's background colour to magenta   |
+| bg_cyan       | Sets the string's background colour to cyan      |
+| bg_gray       | Sets the string's background colour to gray      |
+| bold          | Sets the string to be bold                       |
+| italic        | Sets the string to be italic                     |
+| underline     | Sets the string to be underline                  |
+| blink         | Sets the string to blink                         |
+| reverse_color | Reverses the colour of the string                |
 
 ## Development
 
