@@ -2,6 +2,7 @@ class String
   def colourise(code, reset_code = 39)
     "\e[#{code}m#{self}\e[#{reset_code}m"
   end
+  alias colourise colorize
 
   def black = colourise(30)
   def red = colourise(31)
@@ -38,4 +39,5 @@ class String
   def underline = colourise(4, 24)
   def blink = colourise(5, 25)
   def reverse_color = colourise(7, 27)
+  alias reverse_colour reverse_color
 end
