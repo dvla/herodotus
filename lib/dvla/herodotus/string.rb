@@ -1,61 +1,43 @@
 class String
-  def black = "\e[30m#{self}\e[0m"
+  def colourise(code, reset_code = 39)
+    "\e[#{code}m#{self}\e[#{reset_code}m"
+  end
+  alias colorize colourise
 
-  def red = "\e[31m#{self}\e[0m"
+  def black = colourise(30)
+  def red = colourise(31)
+  def green = colourise(32)
+  def brown = colourise(33)
+  alias yellow brown
 
-  def green = "\e[32m#{self}\e[0m"
-
-  def brown = "\e[33m#{self}\e[0m"
-
-  def blue = "\e[34m#{self}\e[0m"
-
-  def magenta = "\e[35m#{self}\e[0m"
-
-  def cyan = "\e[36m#{self}\e[0m"
-
-  def gray = "\e[37m#{self}\e[0m"
-
+  def blue = colourise(34)
+  def magenta = colourise(35)
+  def cyan = colourise(36)
+  def gray = colourise(37)
   alias grey gray
 
-  def bright_black = "\e[90m#{self}\e[0m"
+  def bright_black = colourise(90)
+  def bright_red = colourise(91)
+  def bright_green = colourise(92)
+  def bright_yellow = colourise(93)
+  def bright_blue = colourise(94)
+  def bright_magenta = colourise(95)
+  def bright_cyan = colourise(96)
+  def white = colourise(97)
 
-  def bright_red = "\e[91m#{self}\e[0m"
+  def bg_black = colourise(40, 49)
+  def bg_red = colourise(41, 49)
+  def bg_green = colourise(42, 49)
+  def bg_brown = colourise(43, 49)
+  def bg_blue = colourise(44, 49)
+  def bg_magenta = colourise(45, 49)
+  def bg_cyan = colourise(46, 49)
+  def bg_gray = colourise(47, 49)
 
-  def bright_green = "\e[92m#{self}\e[0m"
-
-  def bright_yellow = "\e[93m#{self}\e[0m"
-
-  def bright_blue = "\e[94m#{self}\e[0m"
-
-  def bright_magenta = "\e[95m#{self}\e[0m"
-
-  def bright_cyan = "\e[96m#{self}\e[0m"
-
-  def white = "\e[97m#{self}\e[0m"
-
-  def bg_black = "\e[40m#{self}\e[0m"
-
-  def bg_red = "\e[41m#{self}\e[0m"
-
-  def bg_green = "\e[42m#{self}\e[0m"
-
-  def bg_brown = "\e[43m#{self}\e[0m"
-
-  def bg_blue = "\e[44m#{self}\e[0m"
-
-  def bg_magenta = "\e[45m#{self}\e[0m"
-
-  def bg_cyan = "\e[46m#{self}\e[0m"
-
-  def bg_gray = "\e[47m#{self}\e[0m"
-
-  def bold = "\e[1m#{self}\e[22m"
-
-  def italic = "\e[3m#{self}\e[23m"
-
-  def underline = "\e[4m#{self}\e[24m"
-
-  def blink = "\e[5m#{self}\e[25m"
-
-  def reverse_color = "\e[7m#{self}\e[27m"
+  def bold = colourise(1, 22)
+  def italic = colourise(3, 23)
+  def underline = colourise(4, 24)
+  def blink = colourise(5, 25)
+  def reverse_color = colourise(7, 27)
+  alias reverse_colour reverse_color
 end
