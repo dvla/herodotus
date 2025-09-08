@@ -7,7 +7,8 @@ class String
   def red = colourise(31)
   def green = colourise(32)
   def brown = colourise(33)
-  def yellow = colourise(33)
+  alias yellow brown
+
   def blue = colourise(34)
   def magenta = colourise(35)
   def cyan = colourise(36)
