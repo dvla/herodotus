@@ -32,4 +32,16 @@ RSpec.describe DVLA::Herodotus::MultiWriter do
 
     expect($stdout.closed?).to be false
   end
+
+  it 'strips colours from messages when writing to non-stdout targets' do
+    file_output = StringIO.new
+    coloured_message = 'test message'.red.underline.bg_blue
+
+    allow($stdout).to receive(:write)
+
+    multi_writer = DVLA::Herodotus::MultiWriter.new($stdout, file_output)
+    multi_writer.write(coloured_message)
+
+    expect(file_output.string).to eq('test message')
+  end
 end
