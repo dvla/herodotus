@@ -104,7 +104,7 @@ You can stack multiple method calls to add additional styling and use string int
 | Utility | strip_colour reverse_colour |
 
 #### To handle differences in spelling the following methods have been given aliases:
-| Original      | Alias          |
+| Alias         | Original       |
 |---------------|----------------|
 | bg_grey       | bg_gray        |
 | colorize      | colourise      |
