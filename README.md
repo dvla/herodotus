@@ -29,7 +29,9 @@ You can get a logger by calling the following once Herodotus is installed:
 logger = DVLA::Herodotus.logger('<system-name>')
 ```
 
-You can also log out to a file. If you want all the logs in a single file, provide a string of the path to that output file and it will be logged to simultaneously with standard console logger
+You can also log out to a file. If you want all the logs in a single file, provide a string of the path to that output file and it will be logged to simultaneously with standard console logger.
+
+**Note:** Log messages are stripped of colour codes before being saved to file.
 
 ```ruby
 logger = DVLA::Herodotus.logger('<system-name>', output_path: 'logs.txt')
@@ -82,45 +84,34 @@ logger.new_scenario('Scenario Id')
 
 ### Strings
 
-Also included is a series of additional methods on `String` that allow you to modify the colour and style of logs. As these exist on `String`, you can call them on any string such as:
+Also included is a series of additional methods on `String` that allow you to modify the colour and style of logs.
+You can stack multiple method calls to add additional styling and use string interpolation to style different parts of the string
+
 
 ```ruby
-example_string = 'Multicoloured String'.blue.bg_red.bold
+  example_string = "#{'H'.red}#{'E'.bright_red}#{'R'.yellow}#{'O'.green}#{'D'.blue}#{'O'.bright_blue}#{'T'.magenta}#{'U'.bright_magenta}#{'S'.cyan}".bold.reverse_colour
 ```
 
-| Method        | Function                                         |
-|---------------|--------------------------------------------------|
-| blue          | Sets the string's colour to blue                 |
-| red           | Sets the string's colour to red                  |
-| green         | Sets the string's colour to green                |
-| brown         | Sets the string's colour to brown                |
-| blue          | Sets the string's colour to blue                 |
-| magenta       | Sets the string's colour to magenta              |
-| cyan          | Sets the string's colour to cyan                 |
-| gray          | Sets the string's colour to gray                 |
-| grey          | Sets the string's colour to grey (alias of gray) |
-| bright_blue   | Sets the string's colour to bright blue          |
-| bright_red    | Sets the string's colour to bright red           |
-| bright_green  | Sets the string's colour to bright green         |
-| bright_yellow | Sets the string's colour to bright yellow        |
-| bright_blue   | Sets the string's colour to bright blue          |
-| bright_magenta| Sets the string's colour to bright magenta       |
-| bright_cyan   | Sets the string's colour to bright cyan          |
-| white         | Sets the string's colour to white                |
-| bg_blue       | Sets the string's background colour to blue      |
-| bg_red        | Sets the string's background colour to red       |
-| bg_green      | Sets the string's background colour to green     |
-| bg_brown      | Sets the string's background colour to brown     |
-| bg_blue       | Sets the string's background colour to blue      |
-| bg_magenta    | Sets the string's background colour to magenta   |
-| bg_cyan       | Sets the string's background colour to cyan      |
-| bg_gray       | Sets the string's background colour to gray      |
-| bold          | Sets the string to be bold                       |
-| italic        | Sets the string to be italic                     |
-| underline     | Sets the string to be underline                  |
-| blink         | Sets the string to blink                         |
-| reverse_color | Reverses the colour of the string                |
+#### Available String Methods
+
+| Type | Examples |
+|------|----------|
+| Text Styles | **bold** <span style="opacity:0.6">dim</span> *italic* <u>underline</u> |
+| Colors | <span style="color:black">black</span> <span style="color:red">red</span> <span style="color:green">green</span> <span style="color:#B8860B">brown</span> <span style="color:#ffff00">yellow</span> <span style="color:blue">blue</span> <span style="color:magenta">magenta</span> <span style="color:cyan">cyan</span> <span style="color:grey">gray</span> <span style="color:white">white</span> |
+| Bright Colors | <span style="color:#ff5555">bright_red</span> <span style="color:#55ff55">bright_green</span> <span style="color:#5555ff">bright_blue</span> <span style="color:#ff55ff">bright_magenta</span> <span style="color:#55ffff">bright_cyan</span> |
+| Background Colors | <span style="background:black;color:white">bg_black</span> <span style="background:red;color:white">bg_red</span> <span style="background:green;color:white">bg_green</span> <span style="background:#B8860B;color:white">bg_brown</span> <span style="background:#ffff00;color:black">bg_yellow</span> <span style="background:blue;color:white">bg_blue</span> <span style="background:magenta;color:white">bg_magenta</span> <span style="background:cyan;color:black">bg_cyan</span> <span style="background:grey;color:white">bg_gray</span> <span style="background:white;color:black">bg_white</span> |
+| Bright Background Colors | <span style="background:#ff5555;color:white">bg_bright_red</span> <span style="background:#55ff55;color:black">bg_bright_green</span> <span style="background:#5555ff;color:white">bg_bright_blue</span> <span style="background:#ff55ff;color:white">bg_bright_magenta</span> <span style="background:#55ffff;color:black">bg_bright_cyan</span> |
+| Utility | strip_colour reverse_colour |
+
+#### To handle differences in spelling the following methods have been given aliases:
+| Alias         | Original       |
+|---------------|----------------|
+| bg_grey       | bg_gray        |
+| colorize      | colourise      |
+| grey          | gray           |
+| reverse_color | reverse_colour |
+| strip_color   | strip_colour   |
 
 ## Development
 
-Herodotus is very lightweight. Currently all code to generate a new logger can be found in `herodotus.rb` and the code for the logger is in `herodotus_logger.rb` so that is the best place to start with any modifications
+Herodotus is very lightweight. Currently, all code to generate a new logger can be found in `herodotus.rb` and the code for the logger is in `herodotus_logger.rb` so that is the best place to start with any modifications
