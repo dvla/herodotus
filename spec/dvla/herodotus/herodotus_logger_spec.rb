@@ -154,4 +154,59 @@ RSpec.describe DVLA::Herodotus::HerodotusLogger do
       expect(logger2.scenario_id).to eq('blah')
     end
   end
+
+  context 'prefix colourisation' do
+    before(:each) do
+      allow(Time).to receive(:now).and_return(Time.new(2022))
+      allow(SecureRandom).to receive(:uuid).and_return('123e4567-e89b-12d3-a456-426614174000')
+    end
+
+    it 'colours prefix via string' do
+      config = DVLA::Herodotus.config { |c| c.prefix_colour = 'blue.bold' }
+      logger = DVLA::Herodotus.logger('rspec', config: config)
+
+      expect { logger.info('test') }.to output("\e[1m\e[34m[rspec 2022-01-01 00:00:00 123e4567] INFO -- : \e[39m\e[22mtest\n")
+                                          .to_stdout_from_any_process
+    end
+
+    it 'colours prefix with array of strings' do
+      config = DVLA::Herodotus.config { |c| c.prefix_colour = %w[blue bold] }
+      logger = DVLA::Herodotus.logger('rspec', config: config)
+
+      expect { logger.info('test') }.to output("\e[1m\e[34m[rspec 2022-01-01 00:00:00 123e4567] INFO -- : \e[39m\e[22mtest\n")
+                                          .to_stdout_from_any_process
+    end
+
+    it 'colours prefix individual components' do
+      config = DVLA::Herodotus.config do |c|
+        c.prefix_colour = {
+          system: 'blue.bold',
+          date: 'green',
+          time: 'yellow',
+          correlation: 'magenta',
+          pid: 'cyan',
+          level: 'red.bold',
+          separator: 'white',
+        }
+      end
+      logger = DVLA::Herodotus.logger('rspec', config: config)
+
+      expected_output = "[\e[1m\e[34mrspec\e[39m\e[22m \e[32m2022-01-01\e[39m \e[93m00:00:00\e[39m \e[35m123e4567\e[39m] \e[1m\e[31mINFO\e[39m\e[22m \e[97m-- :\e[39m test\n"
+      expect { logger.info('test') }.to output(expected_output).to_stdout_from_any_process
+    end
+
+    it 'only colourises its own prefix' do
+      main_config = DVLA::Herodotus.config { |c| c.main = true }
+      main_logger = DVLA::Herodotus.logger('main', config: main_config)
+
+      secondary_config = DVLA::Herodotus.config { |c| c.prefix_colour = 'red' }
+      secondary_logger = DVLA::Herodotus.logger('secondary', config: secondary_config)
+
+      expect { main_logger.info('main test') }.to output("[main 2022-01-01 00:00:00 123e4567] INFO -- : main test\n")
+                                                    .to_stdout_from_any_process
+
+      expect { secondary_logger.info('secondary test') }.to output("\e[31m[secondary 2022-01-01 00:00:00 123e4567] INFO -- : \e[39msecondary test\n")
+                                                               .to_stdout_from_any_process
+    end
+  end
 end
