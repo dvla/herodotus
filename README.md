@@ -62,6 +62,52 @@ This would result in logs in the following format:
 
 `[SystemName CurrentDate CurrentTime CorrelationId PID] Level : -- Message`
 
+#### Prefix Colourisation
+You can colourise the log prefix in several ways:
+
+**Apply colours to the entire prefix:**
+```ruby
+config = DVLA::Herodotus.config do |config|
+  config.prefix_colour = 'blue.bold'
+end
+logger = DVLA::Herodotus.logger('<system-name>', config: config)
+```
+
+**Use an array of colour methods:**
+
+```ruby
+config = DVLA::Herodotus.config do |config|
+  config.prefix_colour = %w[blue bold underline]
+end
+logger = DVLA::Herodotus.logger('<system-name>', config: config)
+```
+
+**Apply different colours to individual components:**
+```ruby
+config = DVLA::Herodotus.config do |config|
+  config.prefix_colour = {
+    system: 'blue.bold',
+    date: 'green',
+    time: 'yellow',
+    correlation: 'magenta',
+    pid: 'cyan',
+    level: 'red.bold',
+    separator: 'white'
+  }
+end
+logger = DVLA::Herodotus.logger('<system-name>', config: config)
+```
+
+The hash keys correspond to different parts of the log prefix:
+- `system`: The system name
+- `date`: The date portion (YYYY-MM-DD)
+- `time`: The time portion (HH:MM:SS)
+- `correlation`: The correlation ID
+- `pid`: The process ID (when display_pid is enabled)
+- `level`: The log level (INFO, WARN, etc.)
+- `separator`: The "-- :" separator
+- `overall`: Applied to the entire prefix after individual components are coloured
+
 ### Syncing logs
 
 Herodotus allows you to Sync correlation_ids between instantiated HerodotusLogger objects. 

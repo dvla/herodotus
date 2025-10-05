@@ -3,7 +3,8 @@ module DVLA
     class MultiWriter
       attr_reader :targets
 
-      def initialize(*targets)
+      def initialize(*targets, config: nil)
+        @config = config
         @targets = *targets
       end
 

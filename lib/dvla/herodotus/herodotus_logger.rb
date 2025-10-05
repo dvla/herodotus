@@ -3,7 +3,7 @@ require 'securerandom'
 module DVLA
   module Herodotus
     class HerodotusLogger < Logger
-      attr_accessor :system_name, :correlation_id, :main, :display_pid, :scenario_id
+      attr_accessor :system_name, :correlation_id, :main, :display_pid, :scenario_id, :prefix_colour
 
       # Initializes the logger
       # Sets a default correlation_id and creates the formatter
@@ -15,6 +15,7 @@ module DVLA
         @system_name = system_name
         @main = config[:main]
         @display_pid = config[:display_pid]
+        @prefix_colour = config[:prefix_colour]
 
         @correlation_id = SecureRandom.uuid[0, 8]
         set_formatter
@@ -65,18 +66,53 @@ module DVLA
       end
 
       # Sets the format of the log.
-      # Needs to be called each time correlation_id is changed after initialization in-order for the changes to take affect.
+      # Needs to be called each time correlation_id is changed after initialization in-order for the changes to take effect.
       def set_formatter
         self.formatter = proc do |severity, _datetime, _progname, msg|
-          "[#{@system_name} " \
-            "#{Time.now.strftime('%Y-%m-%d %H:%M:%S')} " \
-            "#{@correlation_id}" \
-            "#{' '.concat(Process.pid.to_s) if @display_pid}] " \
-            "#{severity} -- : #{msg}\n"
+          now = Time.now
+          system = @system_name
+          date = now.strftime('%Y-%m-%d')
+          time = now.strftime('%H:%M:%S')
+          correlation = @correlation_id
+          pid = @display_pid ? Process.pid.to_s : nil
+          level = severity
+          separator = '-- :'
+
+          prefix = case @prefix_colour
+                     # Colourise the whole prefix
+                   when Array, String
+                     bracket_content = [system, date, time, correlation, pid].compact.join(' ')
+                     colourise_text("[#{bracket_content}] #{level} #{separator} ", @prefix_colour)
+                   when Hash
+                     #   Colour each component individually and wrap in an overall colour
+                     s = @prefix_colour[:system] ? colourise_text(system, @prefix_colour[:system]) : system
+                     d = @prefix_colour[:date] ? colourise_text(date, @prefix_colour[:date]) : date
+                     t = @prefix_colour[:time] ? colourise_text(time, @prefix_colour[:time]) : time
+                     c = @prefix_colour[:correlation] ? colourise_text(correlation, @prefix_colour[:correlation]) : correlation
+                     p = pid && @prefix_colour[:pid] ? colourise_text(pid, @prefix_colour[:pid]) : pid
+                     l = @prefix_colour[:level] ? colourise_text(level, @prefix_colour[:level]) : level
+                     sep = @prefix_colour[:separator] ? colourise_text(separator, @prefix_colour[:separator]) : separator
+                     bracket_content = [s, d, t, c, p].compact.join(' ')
+                     result = "[#{bracket_content}] #{l} #{sep} "
+                     @prefix_colour[:overall] ? colourise_text(result, @prefix_colour[:overall]) : result
+                   else
+                     # No colourisation
+                     bracket_content = [system, date, time, correlation, pid].compact.join(' ')
+                     "[#{bracket_content}] #{level} #{separator} "
+                   end
+
+          "#{prefix}#{msg}\n"
         end
       end
 
     private
+
+      def colourise_text(text, colour_spec)
+        return text unless colour_spec
+
+        methods = colour_spec.is_a?(Array) ? colour_spec : colour_spec.to_s.split('.')
+        methods.reduce(text) { |str, method| str.public_send(method) }
+      end
 
       def set_proc_writer_scenario
         if @logdev.dev.is_a?(DVLA::Herodotus::MultiWriter) && @logdev.dev.targets.any?(DVLA::Herodotus::ProcWriter)
