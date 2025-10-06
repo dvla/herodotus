@@ -15,9 +15,8 @@ module DVLA
         @system_name = system_name
         @main = config[:main]
         @display_pid = config[:display_pid]
-        @prefix_colour = config[:prefix_colour]
-        @colour_methods = build_colour_methods(@prefix_colour)
-
+        @prefix_colour = config[:prefix_colour] || {}
+        validate_colour_config if @prefix_colour.any?
         @correlation_id = SecureRandom.uuid[0, 8]
         set_formatter
 
@@ -81,14 +80,14 @@ module DVLA
             separator: '-- :',
           }
 
-          prefix = apply_prefix_colors(components)
+          prefix = @prefix_colour.any? ? build_prefix_with_colour(components) : build_prefix(components)
           "#{prefix}#{msg}\n"
         end
       end
 
     private
 
-      VALID_METHODS = %w[
+      VALID_COLOUR_METHODS = %w[
         white black red green brown yellow blue magenta cyan gray grey
         bright_red bright_green bright_blue bright_magenta bright_cyan
         bg_black bg_red bg_green bg_brown bg_yellow bg_blue bg_magenta bg_cyan bg_gray bg_grey bg_white
@@ -96,54 +95,36 @@ module DVLA
         bold dim italic underline reverse_colour reverse_color
       ].freeze
 
-      def build_colour_methods(colour_spec)
-        case colour_spec
-        when Array, String
-          methods = colour_spec.is_a?(Array) ? colour_spec : colour_spec.split('.')
-          return {} unless methods.all? { |m| VALID_METHODS.include?(m) }
+      VALID_PREFIX_KEYS = %i[system date time correlation pid level separator overall].freeze
 
-          { prefix: methods.map(&:to_sym) }
-        when Hash
-          colour_spec.transform_values do |spec|
-            next unless spec
-
-            methods = spec.is_a?(Array) ? spec : spec.split('.')
-            methods.map(&:to_sym) if methods.all? { |m| VALID_METHODS.include?(m) }
-          end.compact
-        else
-          {}
-        end
+      def validate_colour_config
+        raise ArgumentError, 'Invalid prefix colour config' unless @prefix_colour.is_a?(Hash) && @prefix_colour.keys.all? { |key| VALID_PREFIX_KEYS.include?(key) }
+        raise ArgumentError, 'Invalid colours in prefix colour config' unless @prefix_colour.values.flatten.all? { |key| VALID_COLOUR_METHODS.include?(key) }
       end
 
-      def apply_colors(text, color_methods)
-        return text unless color_methods
+      def apply_colours(text, colour_spec)
+        return text unless colour_spec
 
-        color_methods.reduce(text) { |str, method| str.public_send(method) }
+        colour_spec.reduce(text) { |str, method| str.public_send(method) }
       end
 
-      def apply_prefix_colors(components)
-        if @colour_methods[:prefix]
-          bracket_content = [components[:system], components[:date], components[:time], 
-                             components[:correlation], components[:pid]].compact.join(' ')
-          text = "[#{bracket_content}] #{components[:level]} #{components[:separator]} "
-          apply_colors(text, @colour_methods[:prefix])
-        elsif @colour_methods.is_a?(Hash) && @colour_methods.any?
-          system = apply_colors(components[:system], @colour_methods[:system])
-          date = apply_colors(components[:date], @colour_methods[:date])
-          time = apply_colors(components[:time], @colour_methods[:time])
-          correlation = apply_colors(components[:correlation], @colour_methods[:correlation])
-          pid = components[:pid] && apply_colors(components[:pid], @colour_methods[:pid])
-          level = apply_colors(components[:level], @colour_methods[:level])
-          separator = apply_colors(components[:separator], @colour_methods[:separator])
+      def build_prefix_with_colour(components)
+        system = apply_colours(components[:system], @prefix_colour[:system])
+        date = apply_colours(components[:date], @prefix_colour[:date])
+        time = apply_colours(components[:time], @prefix_colour[:time])
+        correlation = apply_colours(components[:correlation], @prefix_colour[:correlation])
+        pid = components[:pid] && apply_colours(components[:pid], @prefix_colour[:pid])
+        level = apply_colours(components[:level], @prefix_colour[:level])
+        separator = apply_colours(components[:separator], @prefix_colour[:separator])
 
-          bracket_content = [system, date, time, correlation, pid].compact.join(' ')
-          result = "[#{bracket_content}] #{level} #{separator} "
-          apply_colors(result, @colour_methods[:overall]) || result
-        else
-          bracket_content = [components[:system], components[:date], components[:time], 
-                             components[:correlation], components[:pid]].compact.join(' ')
-          "[#{bracket_content}] #{components[:level]} #{components[:separator]} "
-        end
+        bracket_content = [system, date, time, correlation, pid].compact.join(' ')
+        result = "[#{bracket_content}] #{level} #{separator} "
+        apply_colours(result, @prefix_colour[:overall]) || result
+      end
+
+      def build_prefix(components)
+        bracket_content = [components[:system], components[:date], components[:time], components[:correlation], components[:pid]].compact.join(' ')
+        "[#{bracket_content}] #{components[:level]} #{components[:separator]} "
       end
 
       def set_proc_writer_scenario
