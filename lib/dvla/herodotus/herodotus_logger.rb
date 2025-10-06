@@ -3,7 +3,7 @@ require 'securerandom'
 module DVLA
   module Herodotus
     class HerodotusLogger < Logger
-      attr_accessor :system_name, :correlation_id, :main, :display_pid, :scenario_id
+      attr_accessor :system_name, :correlation_id, :main, :display_pid, :scenario_id, :prefix_colour
 
       # Initializes the logger
       # Sets a default correlation_id and creates the formatter
