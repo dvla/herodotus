@@ -26,10 +26,10 @@ module DVLA
       if output_path
         if output_path.is_a? String
           output_file = File.open(output_path, 'a')
-          return HerodotusLogger.new(system_name, MultiWriter.new(output_file, $stdout, config: config), config: config)
+          return HerodotusLogger.new(system_name, MultiWriter.new(output_file, $stdout), config: config)
         elsif output_path.is_a? Proc
           proc_writer = ProcWriter.new(output_path)
-          return HerodotusLogger.new(system_name, MultiWriter.new(proc_writer, $stdout, config: config), config: config)
+          return HerodotusLogger.new(system_name, MultiWriter.new(proc_writer, $stdout), config: config)
         else
           raise ArgumentError.new 'Unexpected output_path provided. Expecting either a string or a proc'
         end
