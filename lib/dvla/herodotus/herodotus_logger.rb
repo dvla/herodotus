@@ -87,7 +87,7 @@ module DVLA
 
     private
 
-      VALID_COLOUR_METHODS = %w[
+      VALID_COLOUR_METHODS = %i[
         white black red green brown yellow blue magenta cyan gray grey
         bright_red bright_green bright_blue bright_magenta bright_cyan
         bg_black bg_red bg_green bg_brown bg_yellow bg_blue bg_magenta bg_cyan bg_gray bg_grey bg_white
@@ -99,7 +99,15 @@ module DVLA
 
       def validate_colour_config
         raise ArgumentError, 'Invalid prefix colour config' unless @prefix_colour.is_a?(Hash) && @prefix_colour.keys.all? { |key| VALID_PREFIX_KEYS.include?(key) }
-        raise ArgumentError, 'Invalid colours in prefix colour config' unless @prefix_colour.values.flatten.all? { |key| VALID_COLOUR_METHODS.include?(key) }
+
+        @prefix_colour.each_value do |value|
+          raise ArgumentError, 'Colour values must be strings or symbols' unless valid_colour_type?(value)
+          raise ArgumentError, 'Invalid colours in prefix colour config' unless Array(value).map(&:to_sym).all? { |c| VALID_COLOUR_METHODS.include?(c) }
+        end
+      end
+
+      def valid_colour_type?(value)
+        value.is_a?(String) || value.is_a?(Symbol) || (value.is_a?(Array) && value.all? { |v| v.is_a?(String) || v.is_a?(Symbol) })
       end
 
       def apply_colours(text, colour_spec)

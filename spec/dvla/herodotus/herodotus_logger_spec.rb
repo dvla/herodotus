@@ -161,6 +161,66 @@ RSpec.describe DVLA::Herodotus::HerodotusLogger do
       allow(SecureRandom).to receive(:uuid).and_return('123e4567-e89b-12d3-a456-426614174000')
     end
 
+
+    it 'raises ArgumentError for invalid colour methods' do
+      expect {
+        config = DVLA::Herodotus.config do |c|
+          c.prefix_colour = {
+            system: %w[blue invalid_method],
+            level: %w[module_eval],
+          }
+        end
+        DVLA::Herodotus.logger('rspec', config: config)
+      }.to raise_error(ArgumentError, /Invalid colours in prefix colour config/)
+    end
+
+    it 'raises ArgumentError for invalid prefix option' do
+      expect {
+        config = DVLA::Herodotus.config do |c|
+          c.prefix_colour = {
+            unknown: %w[blue],
+          }
+        end
+        DVLA::Herodotus.logger('rspec', config: config)
+      }.to raise_error(ArgumentError, /Invalid prefix colour config/)
+    end
+
+    it 'raises ArgumentError for invalid prefix colour type' do
+      expect {
+        config = DVLA::Herodotus.config do |c|
+          c.prefix_colour = {
+            system: %r[blue],
+          }
+        end
+        DVLA::Herodotus.logger('rspec', config: config)
+      }.to raise_error(ArgumentError, /Colour values must be strings or symbols/)
+    end
+
+    it 'raises ArgumentError for invalid prefix colour' do
+      expect {
+        config = DVLA::Herodotus.config do |c|
+          c.prefix_colour = {
+            system: 'blellow',
+          }
+        end
+        DVLA::Herodotus.logger('rspec', config: config)
+      }.to raise_error(ArgumentError, /Invalid colours in prefix colour config/)
+    end
+
+    it 'accepts mixed format colour configuration' do
+      config = DVLA::Herodotus.config do |c|
+        c.prefix_colour = {
+          system: 'blue',
+          date: %w[green bold],
+          time: %i[yellow italic],
+          correlation: %w[magenta],
+          level: :red,
+          separator: %i[white dim],
+        }
+      end
+      expect { DVLA::Herodotus.logger('rspec', config: config)  }.to_not raise_error
+    end
+
     it 'colours entire prefix with overall key' do
       config = DVLA::Herodotus.config { |c| c.prefix_colour = { overall: %w[blue bold] } }
       logger = DVLA::Herodotus.logger('rspec', config: config)
@@ -224,29 +284,6 @@ RSpec.describe DVLA::Herodotus::HerodotusLogger do
 
       expected_output = "[\e[1m\e[34mrspec\e[39m\e[22m 2022-01-01 00:00:00 123e4567] \e[31mINFO\e[39m -- : test\n"
       expect { logger.info('test') }.to output(expected_output).to_stdout_from_any_process
-    end
-
-    it 'raises ArgumentError for invalid colour methods' do
-      expect {
-        config = DVLA::Herodotus.config do |c|
-          c.prefix_colour = {
-            system: %w[blue invalid_method],
-            level: %w[module_eval],
-          }
-        end
-        DVLA::Herodotus.logger('rspec', config: config)
-      }.to raise_error(ArgumentError, /Invalid colours in prefix colour config/)
-    end
-
-    it 'raises ArgumentError for invalid prefix option' do
-      expect {
-        config = DVLA::Herodotus.config do |c|
-          c.prefix_colour = {
-            unknown: %w[blue],
-          }
-        end
-        DVLA::Herodotus.logger('rspec', config: config)
-      }.to raise_error(ArgumentError, /Invalid prefix colour config/)
     end
   end
 end

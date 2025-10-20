@@ -63,17 +63,17 @@ This would result in logs in the following format:
 `[SystemName CurrentDate CurrentTime CorrelationId PID] Level : -- Message`
 
 #### Prefix Colourisation
-You can colourise different parts of the log prefix by providing a hash with an array of strings to style each component:
+You can colourise different parts of the log prefix by providing a hash to style each component. It accepts strings, symbols or arrays of either:
 
 ```ruby
 config = DVLA::Herodotus.config do |config|
   config.prefix_colour = {
     system: %w[blue bold],
-    date: %w[green],
-    time: %w[yellow],
-    correlation: %w[magenta],
+    date: 'green',
+    time: :yellow,
+    correlation: %w[magenta italic],
     pid: %w[cyan],
-    level: %w[red bold],
+    level: %i[red bold],
     separator: %w[white],
     overall: %w[underline]
   }
