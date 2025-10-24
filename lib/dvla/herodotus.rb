@@ -10,7 +10,7 @@ module DVLA
       attr_accessor :main_logger
     end
 
-    CONFIG_ATTRIBUTES = %i[display_pid main].freeze
+    CONFIG_ATTRIBUTES = %i[display_pid main prefix_colour].freeze
 
     def self.config
       config ||= Struct.new(*CONFIG_ATTRIBUTES, keyword_init: true).new

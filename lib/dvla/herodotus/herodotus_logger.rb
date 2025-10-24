@@ -3,7 +3,7 @@ require 'securerandom'
 module DVLA
   module Herodotus
     class HerodotusLogger < Logger
-      attr_accessor :system_name, :correlation_id, :main, :display_pid, :scenario_id
+      attr_accessor :system_name, :correlation_id, :main, :display_pid, :scenario_id, :prefix_colour
 
       # Initializes the logger
       # Sets a default correlation_id and creates the formatter
@@ -15,7 +15,8 @@ module DVLA
         @system_name = system_name
         @main = config[:main]
         @display_pid = config[:display_pid]
-
+        @prefix_colour = config[:prefix_colour] || {}
+        validate_colour_config if @prefix_colour.any?
         @correlation_id = SecureRandom.uuid[0, 8]
         set_formatter
 
@@ -65,18 +66,74 @@ module DVLA
       end
 
       # Sets the format of the log.
-      # Needs to be called each time correlation_id is changed after initialization in-order for the changes to take affect.
+      # Needs to be called each time correlation_id is changed after initialization in-order for the changes to take effect.
       def set_formatter
         self.formatter = proc do |severity, _datetime, _progname, msg|
-          "[#{@system_name} " \
-            "#{Time.now.strftime('%Y-%m-%d %H:%M:%S')} " \
-            "#{@correlation_id}" \
-            "#{' '.concat(Process.pid.to_s) if @display_pid}] " \
-            "#{severity} -- : #{msg}\n"
+          now = Time.now
+          components = {
+            system: @system_name,
+            date: now.strftime('%Y-%m-%d'),
+            time: now.strftime('%H:%M:%S'),
+            correlation: @correlation_id,
+            pid: @display_pid ? Process.pid.to_s : nil,
+            level: severity,
+            separator: '-- :',
+          }
+
+          prefix = @prefix_colour.any? ? build_prefix_with_colour(components) : build_prefix(components)
+          "#{prefix}#{msg}\n"
         end
       end
 
     private
+
+      VALID_COLOUR_METHODS = %i[
+        white black red green brown yellow blue magenta cyan gray grey
+        bright_red bright_green bright_blue bright_magenta bright_cyan
+        bg_black bg_red bg_green bg_brown bg_yellow bg_blue bg_magenta bg_cyan bg_gray bg_grey bg_white
+        bg_bright_red bg_bright_green bg_bright_blue bg_bright_magenta bg_bright_cyan
+        bold dim italic underline reverse_colour reverse_color
+      ].freeze
+
+      VALID_PREFIX_KEYS = %i[system date time correlation pid level separator overall].freeze
+
+      def validate_colour_config
+        raise ArgumentError, 'Invalid prefix colour config' unless @prefix_colour.is_a?(Hash) && @prefix_colour.keys.all? { |key| VALID_PREFIX_KEYS.include?(key) }
+
+        @prefix_colour.each_value do |value|
+          raise ArgumentError, 'Colour values must be strings or symbols' unless valid_colour_type?(value)
+          raise ArgumentError, 'Invalid colours in prefix colour config' unless Array(value).map(&:to_sym).all? { |c| VALID_COLOUR_METHODS.include?(c) }
+        end
+      end
+
+      def valid_colour_type?(value)
+        value.is_a?(String) || value.is_a?(Symbol) || (value.is_a?(Array) && value.all? { |v| v.is_a?(String) || v.is_a?(Symbol) })
+      end
+
+      def apply_colours(text, colour_spec)
+        return text unless colour_spec
+
+        colour_spec.reduce(text) { |str, method| str.public_send(method) }
+      end
+
+      def build_prefix_with_colour(components)
+        system = apply_colours(components[:system], @prefix_colour[:system])
+        date = apply_colours(components[:date], @prefix_colour[:date])
+        time = apply_colours(components[:time], @prefix_colour[:time])
+        correlation = apply_colours(components[:correlation], @prefix_colour[:correlation])
+        pid = components[:pid] && apply_colours(components[:pid], @prefix_colour[:pid])
+        level = apply_colours(components[:level], @prefix_colour[:level])
+        separator = apply_colours(components[:separator], @prefix_colour[:separator])
+
+        bracket_content = [system, date, time, correlation, pid].compact.join(' ')
+        result = "[#{bracket_content}] #{level} #{separator} "
+        apply_colours(result, @prefix_colour[:overall]) || result
+      end
+
+      def build_prefix(components)
+        bracket_content = [components[:system], components[:date], components[:time], components[:correlation], components[:pid]].compact.join(' ')
+        "[#{bracket_content}] #{components[:level]} #{components[:separator]} "
+      end
 
       def set_proc_writer_scenario
         if @logdev.dev.is_a?(DVLA::Herodotus::MultiWriter) && @logdev.dev.targets.any?(DVLA::Herodotus::ProcWriter)

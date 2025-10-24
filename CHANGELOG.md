@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.3.0] - 2025-10-05
+- Config block can now accept prefix colour options. Can be applied to the whole prefix or configure individual components.
+
 ## [2.2.1] - 2025-09-15
 - Fixed issue with ANSI exit codes breaking on string interpolation
 - Added strip_colour method to String which we now call when sending logs to file
