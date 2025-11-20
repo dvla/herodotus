@@ -25,6 +25,10 @@ module DVLA
     private_class_method def self.create_logger(system_name, config, output_path)
       if output_path
         if output_path.is_a? String
+          directory = File.split(output_path).first
+          unless File.directory?(directory)
+            FileUtils.mkdir(directory)
+          end
           output_file = File.open(output_path, 'a')
           return HerodotusLogger.new(system_name, MultiWriter.new(output_file, $stdout), config: config)
         elsif output_path.is_a? Proc
