@@ -27,7 +27,7 @@ module DVLA
         if output_path.is_a? String
           directory = File.split(output_path).first
           unless File.directory?(directory)
-            FileUtils.mkdir(directory)
+            FileUtils.mkdir_p(directory)
           end
           output_file = File.open(output_path, 'a')
           return HerodotusLogger.new(system_name, MultiWriter.new(output_file, $stdout), config: config)
