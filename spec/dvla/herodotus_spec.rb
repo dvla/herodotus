@@ -81,9 +81,14 @@ RSpec.describe DVLA::Herodotus do
                                         .to_stdout_from_any_process
   end
 
-  it 'will create a directory for output_path if it does not exist' do
+  it 'will create a directory for a string output_path if it does not exist' do
     output_path = "test-path/#{rand(9999)}/log.txt"
-    expect { DVLA::Herodotus.logger('rspec', output_path:) }.to_not raise_error
+    expect { DVLA::Herodotus.logger('rspec', output_path: output_path) }.to_not raise_error
+  end
+
+  it 'will create a directory for a proc output_path if it does not exist' do
+    output_path = Proc.new { "test-path/#{rand(9999)}/log.txt" }
+    expect { DVLA::Herodotus.logger('rspec', output_path: output_path) }.to_not raise_error
   end
 
   it 'raises an error when an unexpected type is passed in as an output_path' do
