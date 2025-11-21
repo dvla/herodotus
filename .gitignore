@@ -10,3 +10,4 @@
 /.idea
 
 Gemfile.lock
+/test-path

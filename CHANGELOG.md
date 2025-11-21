@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.3.1] - 2025-11-21
+- Fixed issue with output_path in create_logger, will now make a directory if it did not exist
+
 ## [2.3.0] - 2025-10-05
 - Config block can now accept prefix colour options. Can be applied to the whole prefix or configure individual components.
 
