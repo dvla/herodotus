@@ -2,6 +2,11 @@ require 'dvla/herodotus'
 
 RSpec.describe DVLA::Herodotus::HerodotusLogger do
   let(:logger) { DVLA::Herodotus.logger('rspec') }
+  let(:logger_with_colour) do
+    logger = DVLA::Herodotus.logger('colour-rspec')
+    logger.instance_variable_set(:@prefix_colour, { system: %w[red] })
+    logger
+  end
 
   after(:each) do
     DVLA::Herodotus.main_logger = nil
@@ -284,6 +289,48 @@ RSpec.describe DVLA::Herodotus::HerodotusLogger do
 
       expected_output = "[\e[1m\e[34mrspec\e[39m\e[22m 2022-01-01 00:00:00 123e4567] \e[31mINFO\e[39m -- : test\n"
       expect { logger.info('test') }.to output(expected_output).to_stdout_from_any_process
+    end
+  end
+
+  context '#spawn_child_logger' do
+    it 'should create a child logger with different system name' do
+      child_logger = logger.spawn_child_logger(system_name: 'child-rspec')
+      expect(child_logger.system_name).to eq('child-rspec')
+    end
+
+    it 'should inherit display_pid config from parent' do
+      logger_with_pid = DVLA::Herodotus.logger('parent-rspec', config: DVLA::Herodotus.config { |c| c.display_pid = true })
+      child_logger = logger_with_pid.spawn_child_logger(system_name: 'child-rspec')
+      expect(child_logger.display_pid).to eq(true)
+    end
+
+    it 'should set main to false regardless of parent' do
+      main_logger = DVLA::Herodotus.logger('main-parent-rspec', config: DVLA::Herodotus.config { |c| c.main = true })
+      child_logger = main_logger.spawn_child_logger(system_name: 'child-rspec')
+      expect(child_logger.main).to eq(false)
+    end
+
+    it 'should share the same output device as parent' do
+      child_logger = logger.spawn_child_logger(system_name: 'child-rspec')
+      expect(child_logger.instance_variable_get(:@logdev).dev).to eq(logger.instance_variable_get(:@logdev).dev)
+    end
+
+    it 'should inherit prefix_colour from parent when set' do
+      allow(Time).to receive(:now).and_return(Time.new(2022))
+      allow(SecureRandom).to receive(:uuid).and_return('123e4567-e89b-12d3-a456-426614174000')
+
+      child_logger = logger_with_colour.spawn_child_logger(system_name: 'child-rspec')
+      expect { child_logger.info('test') }.to output("[\e[31mchild-rspec\e[39m 2022-01-01 00:00:00 123e4567] INFO -- : test\n")
+                                                .to_stdout_from_any_process
+    end
+
+    it 'should not set prefix_colour when parent has none' do
+      allow(Time).to receive(:now).and_return(Time.new(2022))
+      allow(SecureRandom).to receive(:uuid).and_return('123e4567-e89b-12d3-a456-426614174000')
+
+      child_logger = logger.spawn_child_logger(system_name: 'child-rspec')
+      expect { child_logger.info('test') }.to output("[child-rspec 2022-01-01 00:00:00 123e4567] INFO -- : test\n")
+                                                .to_stdout_from_any_process
     end
   end
 end

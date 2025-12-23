@@ -58,6 +58,16 @@ module DVLA
         end
       end
 
+      # Creates a new logger with a different system name but inherits config and output path
+      def spawn_child_logger(system_name:)
+        config = DVLA::Herodotus.config do |c|
+          c.display_pid = @display_pid
+          c.main = false
+          c.prefix_colour = @prefix_colour
+        end
+        HerodotusLogger.new(system_name, @logdev.dev, config: config)
+      end
+
       %i[debug info warn error fatal].each do |log_level|
         define_method log_level do |progname = nil, &block|
           set_proc_writer_scenario

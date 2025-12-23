@@ -1,6 +1,9 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.3.2] - 2025-12-23
+- Add 'spawn_child_logger' method to allow other processes to inherit the current logger's configuration
+
 ## [2.3.1] - 2025-11-21
 - Fixed issue with output_path in create_logger, will now make a directory if it did not exist
 
