@@ -311,8 +311,15 @@ RSpec.describe DVLA::Herodotus::HerodotusLogger do
     end
 
     it 'should share the same output device as parent' do
-      child_logger = logger.spawn_child_logger(system_name: 'child-rspec')
-      expect(child_logger.instance_variable_get(:@logdev).dev).to eq(logger.instance_variable_get(:@logdev).dev)
+      output_device = StringIO.new
+      parent_logger = DVLA::Herodotus::HerodotusLogger.new('parent-rspec', output_device)
+      child_logger = parent_logger.spawn_child_logger(system_name: 'child-rspec')
+
+      parent_logger.info('parent message')
+      child_logger.info('child message')
+
+      expect(output_device.string).to include('parent message')
+      expect(output_device.string).to include('child message')
     end
 
     it 'should inherit prefix_colour from parent when set' do
