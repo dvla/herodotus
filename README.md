@@ -102,6 +102,22 @@ You can call `new_scenario` with the identifier just before each scenario to cre
 logger.new_scenario('Scenario Id')
 ```
 
+### spawn_child_logger method
+You can call `spawn_child_logger` with a new system_name which will retain the current logger's config.
+This enables you to pass loggers to other tools and maintain the same colourisation and output_path.
+
+```ruby
+config = DVLA::Herodotus.config do |configuration|
+  configuration.display_pid = false
+  configuration.main = true
+  configuration.prefix_colour = {
+    overall: %w[blue bold],
+  }
+end
+LOG = DVLA::Herodotus.logger('<system-name>', config:, output_path: -> { "log.txt" })
+NewTool.new(logger: LOG.spawn_child_logger(system_name: 'new gem'))
+```
+
 ---
 ### Strings
 
