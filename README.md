@@ -151,6 +151,57 @@ You can stack multiple method calls to add additional styling and use string int
 
 ---
 
+### Semantic Logging Methods
+
+Herodotus provides semantic methods that associate message types with standard colours. This promotes consistent colour usage across teams and makes logs easier to read.
+
+```ruby
+LOG.info { "Environment: #{env}".config }     # brown - configuration/environment
+LOG.info { "Checking image status".step }     # magenta - step execution/progress
+LOG.info { "Application completed".success }  # green - successful operations
+LOG.info { "Retrying request".warning }       # yellow - warnings/non-fatal issues
+LOG.info { "Response: #{payload}".data }      # blue - data values/payloads
+```
+
+#### Default Colours
+
+| Method    | Default Colour | Usage                              |
+|-----------|----------------|-------------------------------------|
+| `.config` | brown          | Configuration, environment settings |
+| `.step`   | magenta        | Method calls, checking, polling     |
+| `.success`| green          | Successful operations, completions  |
+| `.warning`| yellow         | Warnings, non-fatal issues          |
+| `.data`   | blue           | Data values, responses, payloads    |
+
+#### Custom Colour Configuration
+
+Teams can override the default colours to match their preferences:
+
+```ruby
+DVLA::Herodotus::SemanticColours.configure do |c|
+  c.config = :cyan
+  c.step = :blue
+  c.success = :bright_green
+  c.warning = :red
+  c.data = :magenta
+end
+```
+
+To reset to defaults:
+
+```ruby
+DVLA::Herodotus::SemanticColours.reset!
+```
+
+Semantic methods can be chained with other styles:
+
+```ruby
+LOG.info { "COMPLETED".success.bold }
+LOG.info { "ERROR: #{msg}".warning.bg_red }
+```
+
+---
+
 ## Development
 
 Herodotus is very lightweight. Currently, all code to generate a new logger can be found in `herodotus.rb` and the code for the logger is in `herodotus_logger.rb` so that is the best place to start with any modifications

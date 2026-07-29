@@ -3,6 +3,7 @@ require 'fileutils'
 require_relative 'herodotus/herodotus_logger'
 require_relative 'herodotus/multi_writer'
 require_relative 'herodotus/proc_writer'
+require_relative 'herodotus/semantic_colours'
 require_relative 'herodotus/string'
 
 module DVLA

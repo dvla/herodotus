@@ -1,6 +1,12 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2.4.0] - 2026-07-29
+- Added semantic logging methods: `.config`, `.step`, `.success`, `.warning`, `.data`
+- Semantic methods apply standard colours based on message type for consistent logging
+- Added `DVLA::Herodotus::SemanticColours.configure` to allow teams to customise semantic colours
+- Added `DVLA::Herodotus::SemanticColours.reset!` to restore default colours
+
 ## [2.3.2] - 2025-12-23
 - Add 'spawn_child_logger' method to allow other processes to inherit the current logger's configuration
 

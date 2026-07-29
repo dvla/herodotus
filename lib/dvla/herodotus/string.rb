@@ -1,3 +1,5 @@
+require_relative 'semantic_colours'
+
 class String
   def colourise(code, reset_code = 39)
     # Making sure we align the correct reset codes
@@ -88,4 +90,25 @@ class String
   alias grey gray
   alias reverse_color reverse_colour
   alias strip_color strip_colour
+
+  # Semantic logging methods - apply colours based on message type
+  def config
+    send(DVLA::Herodotus::SemanticColours.config)
+  end
+
+  def step
+    send(DVLA::Herodotus::SemanticColours.step)
+  end
+
+  def success
+    send(DVLA::Herodotus::SemanticColours.success)
+  end
+
+  def warning
+    send(DVLA::Herodotus::SemanticColours.warning)
+  end
+
+  def data
+    send(DVLA::Herodotus::SemanticColours.data)
+  end
 end

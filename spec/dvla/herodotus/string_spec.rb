@@ -74,4 +74,59 @@ RSpec.describe String do
       expect('Test'.red.bg_yellow.reverse_colour.bold).to eq "\e[1m\e[7m\e[103m\e[31mTest\e[39m\e[49m\e[27m\e[22m"
     end
   end
+
+  describe 'semantic logging methods' do
+    after(:each) do
+      DVLA::Herodotus::SemanticColours.reset!
+    end
+
+    describe 'with default colours' do
+      it 'applies brown for config' do
+        expect('Test'.config).to eq("\e[33mTest\e[39m")
+      end
+
+      it 'applies magenta for step' do
+        expect('Test'.step).to eq("\e[35mTest\e[39m")
+      end
+
+      it 'applies green for success' do
+        expect('Test'.success).to eq("\e[32mTest\e[39m")
+      end
+
+      it 'applies yellow for warning' do
+        expect('Test'.warning).to eq("\e[93mTest\e[39m")
+      end
+
+      it 'applies blue for data' do
+        expect('Test'.data).to eq("\e[34mTest\e[39m")
+      end
+    end
+
+    describe 'with custom colours' do
+      it 'uses configured colour for config' do
+        DVLA::Herodotus::SemanticColours.configure { |c| c.config = :red }
+        expect('Test'.config).to eq("\e[31mTest\e[39m")
+      end
+
+      it 'uses configured colour for step' do
+        DVLA::Herodotus::SemanticColours.configure { |c| c.step = :cyan }
+        expect('Test'.step).to eq("\e[36mTest\e[39m")
+      end
+
+      it 'uses configured colour for success' do
+        DVLA::Herodotus::SemanticColours.configure { |c| c.success = :bright_green }
+        expect('Test'.success).to eq("\e[92mTest\e[39m")
+      end
+    end
+
+    describe 'chaining with other styles' do
+      it 'can chain semantic methods with styles' do
+        expect('Test'.config.bold).to eq("\e[1m\e[33mTest\e[39m\e[22m")
+      end
+
+      it 'can chain semantic methods with background colours' do
+        expect('Test'.success.bg_black).to eq("\e[40m\e[32mTest\e[39m\e[49m")
+      end
+    end
+  end
 end
