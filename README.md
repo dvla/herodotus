@@ -175,10 +175,12 @@ LOG.info { "Response: #{payload}".data }      # blue - data values/payloads
 
 #### Custom Colour Configuration
 
-Teams can override the default colours to match their preferences:
+You can configure semantic colours alongside other logger options in a single configure block:
 
 ```ruby
-DVLA::Herodotus::SemanticColours.configure do |c|
+DVLA::Herodotus.configure do |c|
+  c.display_pid = true
+  c.prefix_colour = { overall: :blue }
   c.config = :cyan
   c.step = :blue
   c.success = :bright_green
@@ -187,10 +189,10 @@ DVLA::Herodotus::SemanticColours.configure do |c|
 end
 ```
 
-To reset to defaults:
+To reset all configuration to defaults:
 
 ```ruby
-DVLA::Herodotus::SemanticColours.reset!
+DVLA::Herodotus.reset_configuration!
 ```
 
 Semantic methods can be chained with other styles:

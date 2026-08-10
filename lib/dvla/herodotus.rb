@@ -4,23 +4,36 @@ require_relative 'herodotus/herodotus_logger'
 require_relative 'herodotus/multi_writer'
 require_relative 'herodotus/proc_writer'
 require_relative 'herodotus/semantic_colours'
+require_relative 'herodotus/config'
 require_relative 'herodotus/string'
 
 module DVLA
   module Herodotus
     class << self
       attr_accessor :main_logger
+
+      def configuration
+        @configuration ||= Config.new
+      end
+
+      def configure
+        yield(configuration) if block_given?
+        configuration
+      end
+
+      def config
+        c = Config.new
+        yield(c) if block_given?
+        c
+      end
+
+      def reset_configuration!
+        @configuration = Config.new
+        SemanticColours.reset!
+      end
     end
 
-    CONFIG_ATTRIBUTES = %i[display_pid main prefix_colour].freeze
-
-    def self.config
-      config ||= Struct.new(*CONFIG_ATTRIBUTES, keyword_init: true).new
-      yield(config) if block_given?
-      config
-    end
-
-    def self.logger(system_name, config: self.config, output_path: nil)
+    def self.logger(system_name, config: self.configuration, output_path: nil)
       create_logger(system_name, config, output_path)
     end
 
