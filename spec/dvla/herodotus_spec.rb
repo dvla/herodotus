@@ -5,6 +5,87 @@ RSpec.describe DVLA::Herodotus do
     DVLA::Herodotus.main_logger = nil
   end
 
+  describe '.configure' do
+    after(:each) do
+      DVLA::Herodotus.reset_configuration!
+    end
+
+    it 'allows setting logger options' do
+      DVLA::Herodotus.configure do |c|
+        c.display_pid = true
+        c.main = true
+      end
+
+      expect(DVLA::Herodotus.configuration.display_pid).to eq(true)
+      expect(DVLA::Herodotus.configuration.main).to eq(true)
+    end
+
+    it 'allows setting semantic colours' do
+      DVLA::Herodotus.configure do |c|
+        c.success = :cyan
+        c.warning = :red
+      end
+
+      expect(DVLA::Herodotus.configuration.success).to eq(:cyan)
+      expect(DVLA::Herodotus.configuration.warning).to eq(:red)
+    end
+
+    it 'allows setting both logger options and semantic colours in one block' do
+      DVLA::Herodotus.configure do |c|
+        c.display_pid = true
+        c.prefix_colour = { overall: :blue }
+        c.success = :bright_green
+        c.data = :cyan
+      end
+
+      expect(DVLA::Herodotus.configuration.display_pid).to eq(true)
+      expect(DVLA::Herodotus.configuration.prefix_colour).to eq({ overall: :blue })
+      expect(DVLA::Herodotus.configuration.success).to eq(:bright_green)
+      expect(DVLA::Herodotus.configuration.data).to eq(:cyan)
+    end
+
+    it 'persists configuration across calls' do
+      DVLA::Herodotus.configure { |c| c.display_pid = true }
+      DVLA::Herodotus.configure { |c| c.success = :cyan }
+
+      expect(DVLA::Herodotus.configuration.display_pid).to eq(true)
+      expect(DVLA::Herodotus.configuration.success).to eq(:cyan)
+    end
+
+    it 'returns the configuration object' do
+      result = DVLA::Herodotus.configure { |c| c.main = true }
+
+      expect(result).to be_a(DVLA::Herodotus::Config)
+      expect(result.main).to eq(true)
+    end
+  end
+
+  describe '.reset_configuration!' do
+    it 'resets logger options to nil' do
+      DVLA::Herodotus.configure do |c|
+        c.display_pid = true
+        c.main = true
+      end
+
+      DVLA::Herodotus.reset_configuration!
+
+      expect(DVLA::Herodotus.configuration.display_pid).to be_nil
+      expect(DVLA::Herodotus.configuration.main).to be_nil
+    end
+
+    it 'resets semantic colours to defaults' do
+      DVLA::Herodotus.configure do |c|
+        c.success = :cyan
+        c.warning = :red
+      end
+
+      DVLA::Herodotus.reset_configuration!
+
+      expect(DVLA::Herodotus.configuration.success).to eq(:green)
+      expect(DVLA::Herodotus.configuration.warning).to eq(:yellow)
+    end
+  end
+
   it 'returns a logger' do
     expect(DVLA::Herodotus.logger('rspec')).to be_a(Logger)
   end

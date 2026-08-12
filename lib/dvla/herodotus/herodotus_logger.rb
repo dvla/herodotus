@@ -13,9 +13,9 @@ module DVLA
         super(*args, **kwargs)
 
         @system_name = system_name
-        @main = config[:main]
-        @display_pid = config[:display_pid]
-        @prefix_colour = config[:prefix_colour] || {}
+        @main = config.main
+        @display_pid = config.display_pid
+        @prefix_colour = config.prefix_colour || {}
         validate_colour_config if @prefix_colour.any?
         @correlation_id = SecureRandom.uuid[0, 8]
         set_formatter
